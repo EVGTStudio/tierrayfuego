@@ -20,9 +20,13 @@
     min-height:100vh; min-height:100svh; display:flex; align-items:center; justify-content:center;
     text-align:center; padding:1rem 1.25rem 2rem; overflow-x:hidden; position:relative;
   }
-  .volcano { position:fixed; left:0; right:0; bottom:0; width:100%; height:62vh; z-index:0; pointer-events:none; }
-  .crater { animation: breathe 5s ease-in-out infinite; }
-  @keyframes breathe { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+  .bg { position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 75% 55% at 50% 42%, rgba(18,12,9,.30), rgba(18,12,9,.80) 100%),
+      linear-gradient(180deg, rgba(20,13,9,.72) 0%, rgba(20,13,9,.62) 45%, rgba(22,14,9,.86) 100%),
+      url("bg.jpg") center 55% / cover no-repeat, var(--coal);
+    animation: bgin 2.5s ease-out both; }
+  @keyframes bgin { from { opacity:0; } to { opacity:1; } }
   main { position:relative; z-index:1; width:100%; max-width:62rem; }
   h1 { font-weight:400; line-height:0; }
   #fire { display:block; width:min(94vw,56rem); aspect-ratio:1/.56; margin:0 auto -1.2rem; }
@@ -38,20 +42,11 @@
   @media (prefers-reduced-motion: reduce) {
     .line { animation:none; transform:none; }
     .claim,.soon,.heritage { animation:none; opacity:1; }
-    .crater { animation:none; }
   }
 </style>
 </head>
 <body>
-<svg class="volcano" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <defs>
-    <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1d17"/><stop offset="1" stop-color="#1a130f"/></linearGradient>
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e8a15a" stop-opacity=".55"/><stop offset="1" stop-color="#b5532a" stop-opacity="0"/></radialGradient>
-  </defs>
-  <g class="crater"><ellipse cx="600" cy="168" rx="150" ry="70" fill="url(#glow)"/></g>
-  <path fill="url(#rock)" d="M0 500 V418 C140 412 250 392 360 346 C440 312 500 236 560 178 L584 166 L600 172 L618 164 L642 176 C700 236 760 312 850 346 C960 390 1080 410 1200 416 V500 Z"/>
-  <path fill="none" stroke="#e8a15a" stroke-opacity=".35" stroke-width="1.2" d="M560 178 L584 166 L600 172 L618 164 L642 176"/>
-</svg>
+<div class="bg" aria-hidden="true"></div>
 <main>
   <h1><span class="sr">Tierra y Fuego</span><canvas id="fire" aria-hidden="true"></canvas></h1>
   <div class="line" aria-hidden="true"></div>
