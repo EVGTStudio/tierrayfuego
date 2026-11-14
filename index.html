@@ -29,19 +29,49 @@
   @keyframes bgin { from { opacity:0; } to { opacity:1; } }
   main { position:relative; z-index:1; width:100%; max-width:62rem; }
   h1 { font-weight:400; line-height:0; }
-  #fire { display:block; width:min(94vw,56rem); aspect-ratio:1/.56; margin:0 auto -1.2rem; }
+  #fire { animation:show 1.8s ease .5s both; display:block; width:min(94vw,56rem); aspect-ratio:1/.56; margin:0 auto -1.2rem; }
   .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  @keyframes show { from { opacity:0; } to { opacity:1; } }
   .line { width:min(16rem,50vw); height:1px; margin:0 auto 1.6rem;
     background:linear-gradient(90deg,transparent,var(--ember),transparent);
-    transform:scaleX(0); animation:draw 1.6s ease-out 3s forwards; }
+    transform:scaleX(0); animation:draw 1.8s ease-out 5s forwards; }
   @keyframes draw { to { transform:scaleX(1); } }
-  .claim { font-size:clamp(1.25rem,3.4vw,1.75rem); font-style:italic; letter-spacing:.02em; opacity:0; animation:fade 1.8s ease 3.5s forwards; }
-  .soon { margin-top:1.1rem; font-size:clamp(1.05rem,2.6vw,1.3rem); color:var(--muted); opacity:0; animation:fade 1.8s ease 4.2s forwards; }
-  .heritage { margin-top:2.4rem; font-size:1.05rem; color:var(--muted); opacity:0; animation:fade 2s ease 5s forwards; }
-  @keyframes fade { to { opacity:1; } }
+
+  /* Zeile 1: Buchstaben "fangen Feuer" und kuehlen zu Creme ab */
+  .claim { font-size:clamp(1.3rem,3.6vw,1.9rem); font-style:italic; letter-spacing:.03em; text-shadow:0 2px 14px rgba(0,0,0,.65); }
+  .claim .w { display:inline-block; white-space:nowrap; }
+  .claim .l { display:inline-block; white-space:pre; animation:catch 1.9s ease-out calc(5.4s + var(--i)*55ms) both; }
+  @keyframes catch {
+    0%   { opacity:0; filter:blur(9px); transform:translateY(12px); color:#ffb468; text-shadow:0 0 20px rgba(255,150,60,.95); }
+    50%  { opacity:1; filter:blur(0); transform:none; color:#ffcb8c; text-shadow:0 0 16px rgba(255,140,50,.85); }
+    100% { opacity:1; filter:none; transform:none; color:var(--cream); text-shadow:0 2px 14px rgba(0,0,0,.65), 0 0 12px rgba(232,161,90,.25); }
+  }
+
+  /* Zeile 2: taucht wie aus Hitzeflimmern auf, danach streift ab und zu ein warmer Lichtschimmer darueber */
+  .soon { margin-top:1.1rem; font-size:clamp(1.1rem,2.7vw,1.35rem); color:#cdbfa8; text-shadow:0 2px 12px rgba(0,0,0,.7);
+    animation:haze 2.6s ease-out 7.6s both; }
+  @supports ((-webkit-background-clip:text) or (background-clip:text)) {
+    .soon { color:transparent; text-shadow:none; -webkit-background-clip:text; background-clip:text;
+      background-image:linear-gradient(100deg,#cdbfa8 38%,#ffdcab 50%,#cdbfa8 62%); background-size:260% 100%; background-position:120% 0;
+      filter:drop-shadow(0 2px 8px rgba(0,0,0,.7));
+      animation:haze 2.6s ease-out 7.6s both, sweep 9s ease-in-out 11s infinite; }
+  }
+  @keyframes haze { from { opacity:0; transform:translateY(8px) scaleY(1.12); filter:blur(7px); } to { opacity:1; transform:none; filter:blur(0); } }
+  @keyframes sweep { 0%,55% { background-position:120% 0; } 100% { background-position:-20% 0; } }
+
+  /* Zeile 3: "De la Tierra" glimmt wie Glut */
+  .heritage { margin-top:2.2rem; font-size:1.1rem; color:#cdbfa8; text-shadow:0 2px 12px rgba(0,0,0,.7); animation:haze 2.4s ease-out 9s both; }
+  .heritage em { font-size:1.28em; color:var(--ember); animation:ember 4.2s ease-in-out 11s infinite; }
+  @keyframes ember {
+    0%,100% { text-shadow:0 0 6px rgba(232,120,40,.35); }
+    35% { text-shadow:0 0 14px rgba(255,150,60,.7), 0 0 30px rgba(232,100,30,.3); }
+    60% { text-shadow:0 0 9px rgba(232,120,40,.45); }
+    80% { text-shadow:0 0 18px rgba(255,160,70,.8), 0 0 36px rgba(232,100,30,.4); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .line { animation:none; transform:none; }
-    .claim,.soon,.heritage { animation:none; opacity:1; }
+    .claim .l, .soon, .heritage, .heritage em, #fire { animation:none !important; opacity:1; filter:none; }
+    .soon { background-position:50% 0; }
   }
 </style>
 </head>
@@ -50,9 +80,9 @@
 <main>
   <h1><span class="sr">Tierra y Fuego</span><canvas id="fire" aria-hidden="true"></canvas></h1>
   <div class="line" aria-hidden="true"></div>
-  <p class="claim">Pizza artesanal, horneada al fuego · Lago de Atitlán</p>
+  <p class="claim">Pizza artesanal · Lago de Atitlán</p>
   <p class="soon">Próximamente, a domicilio y para llevar.</p>
-  <p class="heritage">Una nueva etapa de <em>De la Tierra</em></p>
+  <p class="heritage">Una nueva etapa <em>De la Tierra</em></p>
 </main>
 <script>
 (function(){
@@ -63,7 +93,7 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let gl=null;
 if(!reduce){try{gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false});}catch(e){}}
 const mask=document.createElement('canvas');
-const FRAG='\n#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 vUv; uniform sampler2D uM; uniform float uT, uA;\nconst float GAIN=5.0;      // Flammen-Dichte\nconst float REACH=0.34;    // Flammen-Hoehe\nfloat h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}\nfloat vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);\n  return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}\nfloat fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*vn(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return v;}\nvec4 m(vec2 p){ if(p.x<0.||p.x>1.||p.y<0.||p.y>1.) return vec4(0.); return texture2D(uM,p);}\nvoid main(){\n  vec2 uv=vUv; vec2 q=vec2(uv.x*uA,uv.y); float t=uT;\n  float ig=smoothstep(0.,4.,t);\n  vec2 n=vec2(fbm(q*vec2(10.,5.)+vec2(0.,-t*1.5)),fbm(q*vec2(10.,5.)+vec2(5.2,-t*1.2)))-.5;\n  float heat=0.,ws=0.;\n  for(int i=0;i<20;i++){\n    float k=float(i)/19.;\n    float w=pow(1.-k,1.8)+.02;\n    vec2 p=vec2(uv.x+n.x*.12*(k+.15), uv.y-k*REACH*ig+n.y*.03*k);\n    vec4 s=m(p); heat+=(s.g*.8+s.r*.6)*w; ws+=w;\n  }\n  heat/=ws;\n  float turb=fbm(q*vec2(9.,4.)+vec2(0.,-t*2.4));\n  float f=1.-exp(-heat*GAIN);\n  f*=.45+1.1*turb;\n  f=smoothstep(.12,1.,f)*ig;\n  vec3 col=mix(vec3(.40,.04,.0),vec3(.95,.32,.04),smoothstep(.08,.40,f));\n  col=mix(col,vec3(1.,.74,.25),smoothstep(.35,.70,f));\n  col=mix(col,vec3(1.,.95,.80),smoothstep(.70,1.,f));\n  float a=smoothstep(.04,.30,f)*smoothstep(1.,.72,uv.y);\n  vec4 s0=m(uv);\n  float halo=s0.g*.5; a=max(a,halo*.6);\n  float fl=.7+.3*vn(vec2(uv.x*40.,t*9.));\n  vec3 core=mix(vec3(1.,.50,.12),vec3(1.,.93,.70),fl*.85);\n  float c=smoothstep(.2,.9,s0.r);\n  vec3 rgb=mix(col,core,c); a=max(a,c);\n  float sp=0.;\n  for(int j=0;j<10;j++){\n    float fj=float(j);\n    float sp_=.10+.18*h21(vec2(fj,9.1));\n    float ph=fract(t*sp_+h21(vec2(fj,3.7)));\n    vec2 pos=vec2(.10+.80*h21(vec2(fj,1.3))+.03*sin(t*2.+fj*5.)*ph,.45+ph*.5);\n    float dd=length((uv-pos)*vec2(uA,1.));\n    sp+=smoothstep(.006,.0,dd)*(1.-ph)*ig;\n  }\n  rgb+=vec3(1.,.7,.3)*sp; a=clamp(max(a,sp),0.,1.);\n  gl_FragColor=vec4(min(rgb,1.)*a,a);\n}\n';
+const FRAG='\n#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 vUv; uniform sampler2D uM; uniform float uT, uA;\nconst float GAIN=5.0;      // Flammen-Dichte\nconst float REACH=0.34;    // Flammen-Hoehe\nfloat h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}\nfloat vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);\n  return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}\nfloat fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*vn(p);p=p*2.03+vec2(3.1,1.7);a*=.5;}return v;}\nvec4 m(vec2 p){ if(p.x<0.||p.x>1.||p.y<0.||p.y>1.) return vec4(0.); return texture2D(uM,p);}\nvoid main(){\n  vec2 uv=vUv; vec2 q=vec2(uv.x*uA,uv.y); float t=uT;\n  float ig=smoothstep(2.6,6.6,t); float hot=smoothstep(1.8,5.4,t);\n  vec2 n=vec2(fbm(q*vec2(10.,5.)+vec2(0.,-t*1.5)),fbm(q*vec2(10.,5.)+vec2(5.2,-t*1.2)))-.5;\n  float heat=0.,ws=0.;\n  for(int i=0;i<20;i++){\n    float k=float(i)/19.;\n    float w=pow(1.-k,1.8)+.02;\n    vec2 p=vec2(uv.x+n.x*.12*(k+.15), uv.y-k*REACH*ig+n.y*.03*k);\n    vec4 s=m(p); heat+=(s.g*.8+s.r*.6)*w; ws+=w;\n  }\n  heat/=ws;\n  float turb=fbm(q*vec2(9.,4.)+vec2(0.,-t*2.4));\n  float f=1.-exp(-heat*GAIN);\n  f*=.45+1.1*turb;\n  f=smoothstep(.12,1.,f)*ig;\n  vec3 col=mix(vec3(.40,.04,.0),vec3(.95,.32,.04),smoothstep(.08,.40,f));\n  col=mix(col,vec3(1.,.74,.25),smoothstep(.35,.70,f));\n  col=mix(col,vec3(1.,.95,.80),smoothstep(.70,1.,f));\n  float a=smoothstep(.04,.30,f)*smoothstep(1.,.72,uv.y);\n  vec4 s0=m(uv);\n  float halo=s0.g*.5*hot; a=max(a,halo*.6);\n  float fl=.7+.3*vn(vec2(uv.x*40.,t*9.));\n  vec3 core=mix(mix(vec3(.80,.74,.66),vec3(1.,.50,.12),hot),vec3(1.,.93,.70),fl*.85*hot);\n  float c=smoothstep(.2,.9,s0.r);\n  vec3 rgb=mix(col,core,c); a=max(a,c);\n  float sp=0.;\n  for(int j=0;j<10;j++){\n    float fj=float(j);\n    float sp_=.10+.18*h21(vec2(fj,9.1));\n    float ph=fract(t*sp_+h21(vec2(fj,3.7)));\n    vec2 pos=vec2(.10+.80*h21(vec2(fj,1.3))+.03*sin(t*2.+fj*5.)*ph,.45+ph*.5);\n    float dd=length((uv-pos)*vec2(uA,1.));\n    sp+=smoothstep(.006,.0,dd)*(1.-ph)*ig;\n  }\n  rgb+=vec3(1.,.7,.3)*sp; a=clamp(max(a,sp),0.,1.);\n  gl_FragColor=vec4(min(rgb,1.)*a,a);\n}\n';
 let uT,uA,tex,start=null;
 function place(ctx,w,h){
   const s=w*0.86/VBW;
@@ -118,6 +148,12 @@ if(gl&&!init()) gl=null;
 layout(); addEventListener('resize',layout);
 if(gl) requestAnimationFrame(frame);
 })();
+</script>
+<script>
+(function(){var c=document.querySelector('.claim');if(!c)return;var t=c.textContent,i=0;c.setAttribute('aria-label',t);c.textContent='';
+t.split(' ').forEach(function(w,k){var ws=document.createElement('span');ws.className='w';ws.setAttribute('aria-hidden','true');
+for(var j=0;j<w.length;j++){var l=document.createElement('span');l.className='l';l.style.setProperty('--i',i++);l.textContent=w[j];ws.appendChild(l);}
+c.appendChild(ws);if(k<t.split(' ').length-1){c.appendChild(document.createTextNode(' '));i++;}});})();
 </script>
 </body>
 </html>
