@@ -20,12 +20,13 @@
     min-height:100vh; min-height:100svh; display:flex; align-items:center; justify-content:center;
     text-align:center; padding:1rem 1.25rem 2rem; overflow-x:hidden; position:relative;
   }
-  .bg { position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:
+  .bg, .bgvideo, .shade { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  .bg { background:url("bg.jpg") center 55% / cover no-repeat, var(--coal); animation: bgin 2.5s ease-out both; }
+  .bgvideo { object-fit:cover; object-position:center 55%; opacity:0; transition:opacity 2s ease; }
+  .bgvideo.on { opacity:1; }
+  .shade { background:
       radial-gradient(ellipse 75% 55% at 50% 42%, rgba(18,12,9,.30), rgba(18,12,9,.80) 100%),
-      linear-gradient(180deg, rgba(20,13,9,.72) 0%, rgba(20,13,9,.62) 45%, rgba(22,14,9,.86) 100%),
-      url("bg.jpg") center 55% / cover no-repeat, var(--coal);
-    animation: bgin 2.5s ease-out both; }
+      linear-gradient(180deg, rgba(20,13,9,.72) 0%, rgba(20,13,9,.62) 45%, rgba(22,14,9,.86) 100%); }
   @keyframes bgin { from { opacity:0; } to { opacity:1; } }
   main { position:relative; z-index:1; width:100%; max-width:62rem; }
   h1 { font-weight:400; line-height:0; }
@@ -77,6 +78,8 @@
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
+<video class="bgvideo" autoplay muted loop playsinline preload="metadata" poster="bg.jpg" aria-hidden="true"><source src="hintergrund.mp4" type="video/mp4"></video>
+<div class="shade" aria-hidden="true"></div>
 <main>
   <h1><span class="sr">Tierra y Fuego</span><canvas id="fire" aria-hidden="true"></canvas></h1>
   <div class="line" aria-hidden="true"></div>
@@ -154,6 +157,13 @@ if(gl) requestAnimationFrame(frame);
 t.split(' ').forEach(function(w,k){var ws=document.createElement('span');ws.className='w';ws.setAttribute('aria-hidden','true');
 for(var j=0;j<w.length;j++){var l=document.createElement('span');l.className='l';l.style.setProperty('--i',i++);l.textContent=w[j];ws.appendChild(l);}
 c.appendChild(ws);if(k<t.split(' ').length-1){c.appendChild(document.createTextNode(' '));i++;}});})();
+</script>
+<script>
+(function(){var v=document.querySelector('.bgvideo');if(!v)return;
+var c=navigator.connection||{};
+if(matchMedia('(prefers-reduced-motion: reduce)').matches||c.saveData){v.remove();return;}
+v.addEventListener('playing',function(){v.classList.add('on');});
+var p=v.play();if(p&&p.catch)p.catch(function(){});})();
 </script>
 </body>
 </html>
